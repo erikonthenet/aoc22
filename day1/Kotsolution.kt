@@ -12,7 +12,7 @@ fun main() {
             currentElfCalories += it.toInt()
         }
     }
-    elfTotalCalories.add(currentElfTotalCalories)
+    elfTotalCalories.add(currentElfCalories)
     elfTotalCalories.sortDescending()
 
     println("Aantal elven: ${elfTotalCalories.size}")
