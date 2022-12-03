@@ -56,10 +56,9 @@ public class Solution {
     static int getPriority(String s) {
         int i = s.charAt(0);
         if (i>=65 && i<=90) {
-            i = i - 38;
+            return i - 38;
         } else {
-            i = i - 96;
+            return i - 96;
         }
-        return i;
     }
 }
