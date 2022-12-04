@@ -40,7 +40,3 @@ fun hasElfOverlapWithOtherElf(elf1: List<Int>, elf2: List<Int>): Boolean {
     }
     return false
 }
-
-fun isInRange(section: Int, rangeStart: Int, rangeEnd: Int): Boolean {
-    return section in rangeStart..rangeEnd
-}
