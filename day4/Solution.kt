@@ -24,12 +24,8 @@ fun main() {
 }
 
 fun isElfInRangeOtherElf(elf1: List<Int>, elf2: List<Int>): Boolean {
-    var rangeElf1Start = elf1[0]
-    var rangeElf1End = elf1[1]
-    var rangeElf2Start = elf2[0]
-    var rangeElf2End = elf2[1]
-    for(section in rangeElf1Start..rangeElf1End) {
-        if (!isInRange(section, rangeElf2Start, rangeElf2End)) {
+    for(section in elf1[0]..elf1[1]) {
+        if (section !in elf2[0]..elf2[1]) {
             return false
         }
     }
@@ -37,13 +33,8 @@ fun isElfInRangeOtherElf(elf1: List<Int>, elf2: List<Int>): Boolean {
 }
 
 fun hasElfOverlapWithOtherElf(elf1: List<Int>, elf2: List<Int>): Boolean {
-    var rangeElf1Start = elf1[0]
-    var rangeElf1End = elf1[1]
-    var rangeElf2Start = elf2[0]
-    var rangeElf2End = elf2[1]
-    for(section in rangeElf1Start..rangeElf1End) {
-        // println("$i in range $rangeElf2Start .. $rangeElf2End = ${i.toInt() in rangeElf2Start..rangeElf2End}")
-        if (isInRange(section, rangeElf2Start, rangeElf2End)) {
+    for(section in elf1[0]..elf1[1]) {
+        if (section in elf2[0]..elf2[1]) {
             return true
         }
     }
