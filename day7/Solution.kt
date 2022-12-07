@@ -32,12 +32,8 @@ fun main() {
     }
 
     val totalFilesize = root.getDirSize()
-    var totalAtMost100k = 0;
-    totalsList.forEach {
-        if (it <= 100000) {
-            totalAtMost100k += it
-        }
-    }
+    val totalAtMost100k = totalsList.filter { it <= 100000 }.sum()
+
     println("Part 1: $totalAtMost100k")
 
     val freeSpace = 70000000 - totalFilesize
@@ -67,8 +63,8 @@ fun readFilesReturningNextIndex(node: TreeNode, lines: List<String>, startIndex:
     return index
 }
 
-class TreeNode(value: String) {
-    var value = value
+class TreeNode(name: String) {
+    var name = name
     var size = 0
     var parent: TreeNode? = null
 
@@ -84,17 +80,9 @@ class TreeNode(value: String) {
     }
 
     private fun getDirSize(node: TreeNode): Int {
-        if (node.children.isEmpty()) {
-            totalsList.add(node.size)
-            return node.size
-        } else {
-            var sum = node.size
-            for (child in node.children) {
-                val size = getDirSize(child)
-                sum += size
-            }
-            totalsList.add(sum)
-            return sum
-        }
+        val sum = node.size +
+                node.children.sumOf { getDirSize(it) }
+        totalsList.add(sum)
+        return sum
     }
 }
