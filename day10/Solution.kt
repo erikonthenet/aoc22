@@ -53,7 +53,5 @@ fun main() {
 }
 
 fun spriteIsOnCurrentPixel(x: Int, currentPixel: Int): Boolean {
-    println()
-    println("Sprite is on ${x-1},$x,${x+1}, currentPixel = $currentPixel")
     return currentPixel >= x-1 && currentPixel <= x+1
 }
