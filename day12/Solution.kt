@@ -1,124 +1,90 @@
 import java.io.File
 
-val gridWidth = 8
-val gridHeight = 5
-
 fun main() {
-    val lines = File("input2.txt").readLines()
-    val grid = mutableListOf<MutableList<Position>>()
+    val lines = File("input.txt").readLines()
+    val startPosition = findPosition('S', lines)
+    val endPosition = findPosition('E', lines)
 
-    var startPosition = Position(0,0,'S')
-    var endPosition = Position(0,5,'E')
+    println("=== Part 1 ===")
+    println(
+        determinePathLength(
+            startPosition,
+            lines,
+            isPossibleRoute = { currentPosition, nextPosition -> nextPosition.getHeight() - currentPosition.getHeight() <= 1 },
+            isFinish = { position -> position == endPosition }
+        )
+    )
+    println("=== Part 2 ===")
+    println(
+        determinePathLength(
+            endPosition,
+            lines,
+            isPossibleRoute = { currentPosition, nextPosition -> currentPosition.getHeight() - nextPosition.getHeight() <= 1 },
+            isFinish = { position -> position.getHeight() == 1 }
+        )
+    )
+}
 
-    for(r in 0 until lines.size) {
-        val row = mutableListOf<Position>()
-        for(c in 0 until lines[r].length) {
-            val currentPosition = Position(r, c, lines[r][c])
-            row.add(currentPosition)
+fun determinePathLength(
+    startAt: Position,
+    grid: List<String>,
+    isPossibleRoute: (Position, Position) -> Boolean,
+    isFinish: (Position) -> Boolean
+): Int {
+    val positions = ArrayDeque<Position>()
+    positions.addLast(startAt)
+    val visitedPositions = mutableSetOf<Position>()
 
-            when(currentPosition.char) {
-                'S' -> { startPosition = currentPosition }
-                'E' -> { endPosition = currentPosition }
+    while (positions.isNotEmpty()) {
+        val currentPosition = positions.removeFirst()
+
+        if (visitedPositions.contains(currentPosition)) {
+            continue
+        }
+
+        if (isFinish(currentPosition)) {
+            return currentPosition.path
+        }
+
+        listOf(0 to 1, -1 to 0, 0 to -1, 1 to 0)
+            .filter { isInGrid(currentPosition.x + it.first, currentPosition.y + it.second, grid) }
+            .map {
+                Position(
+                    currentPosition.x + it.first,
+                    currentPosition.y + it.second,
+                    grid[currentPosition.y + it.second][currentPosition.x + it.first],
+                    currentPosition.path + 1
+                )
+            }
+            .filter { isPossibleRoute(currentPosition, it) }
+            .filter { !visitedPositions.contains(it) }
+            .forEach { positions.add(it) }
+
+        visitedPositions.add(currentPosition)
+    }
+    return -1
+}
+
+fun isInGrid(x: Int, y: Int, grid: List<String>): Boolean {
+    val result = x >= 0 && x < grid[0].length
+            && y >= 0 && y < grid.size
+    return result
+}
+
+fun findPosition(charToFind: Char, grid: List<String>): Position {
+    grid.mapIndexed { row, line ->
+        line.mapIndexed { col, char ->
+            if (char == charToFind) {
+                return Position(col, row, char)
             }
         }
-        grid.add(row)
     }
-
-    val terrain = Terrain(grid, startPosition, endPosition)
-
-    println(startPosition)
-    println(endPosition)
-
-    
-
-    //val routes = mutableListOf<Int>()
-
-    //determineNextStep(0,0,grid,mutableListOf<Position>(),routes)
-
-    //routes.sortDescending()
-    //println("Kortste route ${routes.size} van =" + routes.min())
+    throw IllegalStateException("Char $charToFind not in grid")
 }
 
-fun previousStep(currentPosition: Position, terrain: Terrain) {
-    val previousSteps = mutableListOf<Position>()
-
-    if (currentPosition.r > 0)
-}
-
-/* 
-fun determineNextStep(posX: Int, posY: Int, grid: List<String>, visitedPositions: MutableList<Position>, routes: MutableList<Int>) {
-    val currentPosition = Position(posX, posY, grid[posY][posX])
-    visitedPositions.add(currentPosition)
-    //println("Determine next step for current position $currentPosition")
-
-
-    if (currentPosition.char == 'E') {
-        routes.add(visitedPositions.size)
-
-        if (visitedPositions.size == 36) {
-            println("Route met lengte 36")
-            visitedPositions.forEach {
-                println (it)
-            }
-        }
-        return
-    }
-
-    if (posX > 0) {
-        // look left
-        val nextPosition = Position(posX-1, posY, grid[posY][posX-1])
-        if (goNext(currentPosition, nextPosition, visitedPositions)) {
-            //println("go left")
-            determineNextStep(nextPosition.x, nextPosition.y, grid, visitedPositions.toMutableList(), routes)
-
-        }
-    }
-    if (posX < gridWidth -1) {
-        // look right
-        val nextPosition = Position(posX+1, posY, grid[posY][posX+1])
-        if (goNext(currentPosition, nextPosition, visitedPositions)) {
-            //println("go right")
-            determineNextStep(nextPosition.x, nextPosition.y, grid, visitedPositions.toMutableList(), routes)
-        }
-    }
-
-    if (posY > 0) {
-        // look up
-        val nextPosition = Position(posX, posY-1, grid[posY-1][posX])
-        if (goNext(currentPosition, nextPosition, visitedPositions)) {
-            //println("go up")
-            determineNextStep(nextPosition.x, nextPosition.y, grid, visitedPositions.toMutableList(), routes)
-        }
-    }
-
-    if (posY < gridHeight -1) {
-        // look down
-        val nextPosition = Position(posX, posY+1, grid[posY+1][posX])
-        if (goNext(currentPosition, nextPosition, visitedPositions)) {
-            //println("go down")
-            determineNextStep(nextPosition.x, nextPosition.y, grid, visitedPositions.toMutableList(), routes)
-        }
-    }
-}
-*/
-
-fun goNext(currentPosition: Position, nextPosition: Position, visitedPositions: List<Position>): Boolean {
-    //println("cur: $currentPosition - next: $nextPosition")
-    if (visitedPositions.contains(nextPosition)) {
-        return false
-    }
-    return (nextPosition.char != 'S' && currentPosition.char.code <= nextPosition.char.code) || nextPosition.char == 'E' || currentPosition.char == 'S'
-}
-
-class Terrain(
-    var grid: MutableList<MutableList<Position>>,
-    var startPosition: Position,
-    var endPosition: Position) {
-}
-
-data class Position(val r: Int, val c: Int, val char: Char) {
+data class Position(val x: Int, val y: Int, val char: Char, val path: Int = 0) {
     fun getHeight(): Int {
-        return when(this.char) {
+        return when (this.char) {
             'S' -> 1
             'E' -> 26
             else -> this.char.code - 96
@@ -126,16 +92,9 @@ data class Position(val r: Int, val c: Int, val char: Char) {
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other == null) {
-            return false
-        }
-        if (other is Position) {
-            return this.r == other.r && this.c == other.c
+        if (other != null && other is Position) {
+            return this.x == other.x && this.y == other.y
         }
         return false
-    }
-
-    override fun toString(): String {
-        return "Position($r, $c, $char(${getHeight()}))"
     }
 }
